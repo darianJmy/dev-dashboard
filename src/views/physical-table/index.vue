@@ -1,24 +1,26 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { ElTable } from "element-plus";
-import { Plus, More } from "@element-plus/icons-vue";
-import { getTables } from "@/api/physical-tables";
 import PhysicalReload from "./header/reload.vue";
+import PhysicalCreate from "./header/create.vue";
+import PhysicalImport from "./header/import.vue";
+import PhysicalExport from "./header/export.vue";
+import PhysicalMore from "./header/more.vue";
 
-interface Asset {
-  asset: string;
-  ipmi: string;
+import { getIpmiList } from "@/api/basic";
+
+interface IPMI {
+  serial: string;
+  host: string;
   firm: string;
-  cpus: number;
-  memorys: number;
-  disks: number;
-  type: string;
+  username: number;
+  password: number;
 }
 
 const multipleTableRef = ref<InstanceType<typeof ElTable>>();
-const multipleSelection = ref<Asset[]>([]);
+const multipleSelection = ref<IPMI[]>([]);
 
-const handleSelectionChange = (val: Asset[]) => {
+const handleSelectionChange = (val: IPMI[]) => {
   multipleSelection.value = val;
   console.log(multipleSelection.value);
 };
@@ -27,22 +29,17 @@ const tableData = ref([]);
 const pageSize = ref(100);
 const currentPage = ref(1);
 const total = ref();
-onMounted(async () => {
-  const result = await getTables({
-    pageSize: pageSize.value,
-    currentPage: currentPage.value
-  });
-  tableData.value = result.data;
-  total.value = result.total;
+onMounted(() => {
+  getIPMI();
 });
 
-async function handleChange() {
-  const result = await getTables({
-    pageSize: pageSize.value,
-    currentPage: currentPage.value
+async function getIPMI() {
+  const result = await getIpmiList({
+    pageSize: pageSize,
+    currentPage: currentPage
   });
   tableData.value = result.data;
-  total.value = result.total;
+  total.value = result.count;
 }
 
 const deleteRow = (index: number) => {
@@ -55,8 +52,10 @@ const deleteRow = (index: number) => {
     <template #header>
       <div class="card-header">
         <PhysicalReload />
-        <el-button type="primary" :icon="Plus">创建</el-button>
-        <el-button type="primary" :icon="More">更多</el-button>
+        <PhysicalCreate />
+        <PhysicalImport />
+        <PhysicalExport />
+        <PhysicalMore />
       </div>
     </template>
     <el-table
@@ -66,23 +65,22 @@ const deleteRow = (index: number) => {
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" />
-      <el-table-column prop="asset" label="资产编号" width="180" />
-      <el-table-column prop="ipmi" label="带外IP" width="180" />
-      <el-table-column prop="firm" label="服务器厂商" width="180" />
-      <el-table-column prop="cpus" label="CPU数量" width="180" />
-      <el-table-column prop="memorys" label="内存数量" width="180" />
-      <el-table-column prop="disks" label="硬盘数量" width="180" />
-      <el-table-column prop="type" label="节点类型" />
-      <el-table-column label="更多操作">
+      <el-table-column prop="serial" label="资产编号" width="180" />
+      <el-table-column prop="host" label="带外IP" width="140" />
+      <el-table-column prop="firm" label="服务器厂商" width="130" />
+      <el-table-column prop="username" label="用户名" width="100" />
+      <el-table-column prop="password" label="密码" width="80" />
+      <el-table-column fixed="right" label="更多操作" width="240">
         <template #default="scope">
-          <el-button type="primary" size="small">修改</el-button>
+          <el-button type="primary" link size="small">修改</el-button>
           <el-button
             type="danger"
+            link
             size="small"
             @click.prevent="deleteRow(scope.$index)"
             >删除</el-button
           >
-          <el-button type="primary" size="small">远程安装</el-button>
+          <el-button type="primary" link size="small">远程安装</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -95,8 +93,8 @@ const deleteRow = (index: number) => {
         background
         layout="->, total, sizes, prev, pager, next, jumper"
         :total="total"
-        @size-change="handleChange"
-        @current-change="handleChange"
+        @size-change="getIPMI"
+        @current-change="getIPMI"
       />
     </div>
   </el-card>

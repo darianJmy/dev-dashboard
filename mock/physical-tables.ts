@@ -71,5 +71,15 @@ export default [
         };
       }
     }
+  },
+  {
+    url: "/createPhysical",
+    method: "post",
+    response: ({ body }) => {
+      return {
+        success: true,
+        data: body
+      };
+    }
   }
 ] as MockMethod[];

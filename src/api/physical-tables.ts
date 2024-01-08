@@ -9,3 +9,7 @@ type Result = {
 export const getTables = (params?: object) => {
   return http.request<Result>("get", "/getTables", { params });
 };
+
+export const createPhysical = (data?: object) => {
+  return http.request<Result>("post", "/createPhysical", { data });
+};
