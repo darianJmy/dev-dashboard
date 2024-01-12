@@ -3,7 +3,7 @@ import { reactive, ref } from "vue";
 import { Plus } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { FormInstance } from "element-plus";
-import { createIpmi } from "@/api/basic";
+import { postIpmiCreate } from "@/api/basic";
 
 const dialog = ref(false);
 
@@ -56,42 +56,29 @@ const rules = reactive({
   ]
 });
 
-const resetForm = (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
-  formEl.resetFields();
-};
-
 async function create() {
-  if (!check()) {
-    ElMessage({ showClose: true, message: "输入不能为空", type: "warning" });
-    return;
-  }
-  const result = await createIpmi(ruleForm.value);
-  dialog.value = true;
-  //reload();
-  console.log(result);
-}
-
-function check() {
   for (const key in ruleForm.value) {
     if (!ruleForm.value[key]) {
-      return false;
+      ElMessage({ showClose: true, message: "输入不能为空", type: "warning" });
+      return;
     }
   }
-  return true;
+
+  await postIpmiCreate(ruleForm.value);
+  window.location.reload();
 }
 
-// function reload() {
-//   window.location.reload();
-// }
-
 function close() {
-  resetForm(ruleFormRef.value);
+  ruleFormRef.value.resetFields();
 }
 </script>
 
 <template>
-  <el-button @click="dialog = true" :icon="Plus" type="primary"
+  <el-button
+    style="margin-left: 12px"
+    @click="dialog = true"
+    :icon="Plus"
+    type="primary"
     >新增设备</el-button
   >
   <el-dialog
@@ -110,7 +97,7 @@ function close() {
       <el-form-item label="资产编号" prop="serial">
         <el-input v-model="ruleForm.serial" />
       </el-form-item>
-      <el-form-item label="带外IP" prop="ipmi">
+      <el-form-item label="带外IP" prop="host">
         <el-input v-model="ruleForm.host" />
       </el-form-item>
       <el-form-item label="服务器厂商" prop="firm">

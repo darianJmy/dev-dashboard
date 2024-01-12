@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { reactive } from "vue";
+import { ref } from "vue";
 import { Download } from "@element-plus/icons-vue";
 import { utils, writeFile } from "xlsx";
-import { getTables } from "@/api/physical-tables";
+import { getIpmiInfoList } from "@/api/basic";
 
 interface Asset {
-  asset: string;
-  ipmi: string;
+  serial: string;
+  host: string;
   firm: string;
   cpus: number;
   memorys: number;
+  ethernetInterfaces: number;
   disks: number;
-  type: string;
 }
 
 interface Columns {
@@ -19,29 +19,29 @@ interface Columns {
   dataKey: keyof Asset;
 }
 
-let physicalTable = reactive<Asset[]>([]);
+const physicalTable = ref([]);
 
 const columns: Columns[] = [
-  { title: "资产编号", dataKey: "asset" },
-  { title: "带外IP", dataKey: "ipmi" },
+  { title: "资产编号", dataKey: "serial" },
+  { title: "带外IP", dataKey: "host" },
   { title: "服务器厂商", dataKey: "firm" },
   { title: "CPU数量", dataKey: "cpus" },
   { title: "内存数量", dataKey: "memorys" },
-  { title: "硬盘数量", dataKey: "disks" },
-  { title: "节点类型", dataKey: "type" }
+  { title: "网卡数量", dataKey: "ethernetInterfaces" },
+  { title: "硬盘数量", dataKey: "disks" }
 ];
 
 async function exportExcel() {
-  const result = await getTables({
+  const result = await getIpmiInfoList({
     pageSize: 100,
     currentPage: 1
   });
-  physicalTable = result.data;
+  physicalTable.value = result.data;
   excel();
 }
 
 const excel = () => {
-  const res: string[][] = physicalTable.map((item: Asset) => {
+  const res: string[][] = physicalTable.value.map((item: Asset) => {
     const arr = columns.map((column: Columns) => {
       return String(item[column.dataKey]);
     });

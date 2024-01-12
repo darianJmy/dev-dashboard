@@ -6,6 +6,7 @@ const handleCommand = (command: string | number | object) => {
   ElMessage(`click on item ${command}`);
 };
 </script>
+
 <style scoped>
 .example-showcase .el-dropdown-link {
   display: flex;
@@ -22,9 +23,10 @@ const handleCommand = (command: string | number | object) => {
     </el-button>
     <template #dropdown>
       <el-dropdown-menu>
-        <el-dropdown-item command="a">批量删除</el-dropdown-item>
-        <el-dropdown-item command="b">批量更新</el-dropdown-item>
-        <el-dropdown-item command="c" disabled>同步</el-dropdown-item>
+        <el-dropdown-item command="a" disabled>批量删除</el-dropdown-item>
+        <el-dropdown-item command="b" disabled>批量更新</el-dropdown-item>
+        <el-dropdown-item command="c">初始化</el-dropdown-item>
+        <el-dropdown-item command="d" disabled>同步</el-dropdown-item>
       </el-dropdown-menu>
     </template>
   </el-dropdown>

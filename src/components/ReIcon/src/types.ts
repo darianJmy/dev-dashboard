@@ -15,7 +15,7 @@ export interface iconType {
   includes?: Function;
   // svg 需要什么SVG属性自行添加
   fill?: string;
-  
+
   //  all icon
   style?: object;
 }
