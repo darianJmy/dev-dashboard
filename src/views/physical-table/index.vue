@@ -8,6 +8,9 @@ import PhysicalImport from "./header/import.vue";
 import PhysicalExport from "./header/export.vue";
 import PhysicalInitialization from "./header/initialization.vue";
 import PhysicalMore from "./header/more.vue";
+import PhysicalTest from "./header/test.vue";
+import PhysicalSelect from "./header/selectRole.vue";
+import PhysicalBond from "./header/bond.vue";
 
 import {
   getIpmiInfoList,
@@ -50,6 +53,8 @@ async function deleteRow(index: number) {
 
   window.location.reload();
 }
+
+const parentData = Selection;
 </script>
 
 <template>
@@ -62,6 +67,9 @@ async function deleteRow(index: number) {
         <PhysicalImport />
         <PhysicalExport />
         <PhysicalInitialization />
+        <PhysicalTest :receivedData="parentData" />
+        <PhysicalSelect />
+        <PhysicalBond />
         <PhysicalMore />
       </div>
     </template>
@@ -75,10 +83,28 @@ async function deleteRow(index: number) {
       <el-table-column prop="serial" label="资产编号" width="130" />
       <el-table-column prop="host" label="带外IP" width="130" />
       <el-table-column prop="firm" label="服务器厂商" width="130" />
-      <el-table-column prop="cpus" label="CPU数量" width="130" />
-      <el-table-column prop="memorys" label="内存数量" width="130" />
-      <el-table-column prop="ethernetInterfaces" label="网卡数量" width="130" />
-      <el-table-column prop="disks" label="硬盘数量" width="130" />
+      <el-table-column label="CPU数量" width="130">
+        <template #default="scope">
+          <div v-for="(cpuCount, index) in scope.row.cpus" :key="index">
+            {{ cpuCount }}
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="memorys" label="内存" width="130" />
+      <el-table-column prop="ethernetInterfaces" label="网卡数量" width="130">
+        <template #default="scope">
+          <div v-for="(cpuCount, index) in scope.row.cpus" :key="index">
+            {{ cpuCount }}
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="disks" label="硬盘数量" width="130">
+        <template #default="scope">
+          <div v-for="(cpuCount, index) in scope.row.cpus" :key="index">
+            {{ cpuCount }}
+          </div>
+        </template>
+      </el-table-column>
       <el-table-column fixed="right" label="更多操作" width="240">
         <template #default="scope">
           <el-button type="primary" link size="small">修改</el-button>

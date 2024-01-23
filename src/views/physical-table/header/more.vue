@@ -24,9 +24,8 @@ const handleCommand = (command: string | number | object) => {
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item command="a" disabled>批量删除</el-dropdown-item>
-        <el-dropdown-item command="b" disabled>批量更新</el-dropdown-item>
-        <el-dropdown-item command="c">初始化</el-dropdown-item>
-        <el-dropdown-item command="d" disabled>同步</el-dropdown-item>
+        <el-dropdown-item command="c" disabled>RAID管理</el-dropdown-item>
+        <el-dropdown-item command="d" disabled>网卡配置</el-dropdown-item>
       </el-dropdown-menu>
     </template>
   </el-dropdown>
