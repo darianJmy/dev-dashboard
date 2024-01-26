@@ -37,8 +37,10 @@ const ipmiTableData = ref([
     cpu: [8, 8],
     memory: "2G",
     disks: [
-      { Name: "sda", Size: "20G" },
-      { Name: "sdb", Size: "30G" }
+      { Name: "sda", Size: "20G", State: "RAID1" },
+      { Name: "sdb", Size: "30G", State: "JBOD" },
+      { Name: "null", Size: "30G", State: "GOOD" },
+      { Name: "sdc", Size: "30G", State: "" }
     ],
     ethInterface: [
       { Name: "ens33", MAC: "00:0c:29:c1:2c:5c", Speed: 1000, Up: true },
@@ -114,15 +116,15 @@ const closePXEDelEvent = () => {
 }
 
 .step_style {
-  background-color: #eaf4fe;
   margin-top: 20px;
   margin-bottom: 20px;
+  background-color: #eaf4fe;
 }
 
 .bottom-block {
+  align-self: flex-end;
   margin-top: 30px;
   margin-bottom: 5px;
-  align-self: flex-end;
 }
 </style>
 
@@ -201,10 +203,10 @@ const closePXEDelEvent = () => {
           </template>
         </el-table-column>
         <el-table-column prop="memory" label="内存" width="120" />
-        <el-table-column label="硬盘" width="120">
+        <el-table-column label="硬盘" width="500">
           <template #default="scope">
             <div v-for="(disk, index) in scope.row.disks" :key="index">
-              {{ disk.Name }}:{{ disk.Size }}
+              {{ disk.Name }}:{{ disk.Size }}:{{ disk.State }}
             </div>
           </template>
         </el-table-column>
