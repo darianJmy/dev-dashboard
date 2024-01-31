@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { Edit, Picture, UploadFilled } from "@element-plus/icons-vue";
 import SubnetReload from "./subnet/reload.vue";
 import SubnetCreate from "./subnet/create.vue";
@@ -19,6 +19,20 @@ import OpenstackInitialization from "./openstack/initialization.vue";
 import OpenstackInstall from "./openstack/install.vue";
 import OpenstackSelectRole from "./openstack/selectRole.vue";
 
+import { getAUTOList } from "@/api/basic";
+
+onMounted(() => {
+  getAUTO();
+});
+
+async function getAUTO() {
+  const result = await getAUTOList();
+  ipmiTableData.value = result.data;
+  console.log(ipmiTableData.value);
+}
+
+const ipmiTableData = ref([]);
+
 const active = ref(0);
 function next() {
   if (active.value++ > 2) active.value = 0;
@@ -28,45 +42,6 @@ const activeName = ref("first");
 
 const netTableData = ref([
   { name: "manager", types: "provider", net: "", ml2: "physnet1", desc: "测试" }
-]);
-
-const ipmiTableData = ref([
-  {
-    name: "未设置",
-    serial: "12345",
-    cpu: [8, 8],
-    memory: "2G",
-    disks: [
-      { Name: "sda", Size: "20G", State: "RAID1" },
-      { Name: "sdb", Size: "30G", State: "JBOD" },
-      { Name: "null", Size: "30G", State: "GOOD" },
-      { Name: "sdc", Size: "30G", State: "" }
-    ],
-    ethInterface: [
-      { Name: "ens33", MAC: "00:0c:29:c1:2c:5c", Speed: 1000, Up: true },
-      { Name: "ens34", MAC: "00:0c:29:c1:2c:5d", Speed: 1500, Up: false }
-    ],
-    power: "up",
-    status: "已发现",
-    firm: "浪潮"
-  },
-  {
-    name: "未设置",
-    serial: "123456",
-    cpu: [8, 8],
-    memory: "128G",
-    disks: [
-      { Name: "sda", Size: "20G" },
-      { Name: "sdb", Size: "30G" }
-    ],
-    ethInterface: [
-      { Name: "ens33", MAC: "00:0c:29:c1:2c:5c", Speed: 1000, Up: true },
-      { Name: "ens34", MAC: "00:0c:29:c1:2c:5d", Speed: 1500, Up: false }
-    ],
-    power: "up",
-    status: "已发现",
-    firm: "烽火"
-  }
 ]);
 
 const hostTableData = ref([
@@ -193,38 +168,33 @@ const closePXEDelEvent = () => {
         :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
       >
         <el-table-column type="selection" width="55" />
-        <el-table-column prop="name" label="主机名" width="135" />
-        <el-table-column prop="serial" label="序列号" width="135" />
-        <el-table-column label="cpu" width="120">
+        <el-table-column prop="SerialID" label="序列号" width="150" />
+        <el-table-column label="cpu" width="130">
           <template #default="scope">
-            <div v-for="(cpu, index) in scope.row.cpu" :key="index">
-              <el-tag>{{ cpu }}核</el-tag>
+            <div v-for="(cpu, index) in scope.row.CPU" :key="index">
+              <el-tag>{{ cpu.Cores }}核</el-tag>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="memory" label="内存" width="120" />
-        <el-table-column label="硬盘" width="500">
+        <el-table-column prop="Memory" label="内存" width="130" />
+        <el-table-column label="硬盘" width="160">
           <template #default="scope">
-            <div v-for="(disk, index) in scope.row.disks" :key="index">
-              {{ disk.Name }}:{{ disk.Size }}:{{ disk.State }}
+            <div v-for="(disk, index) in scope.row.Disk" :key="index">
+              <el-tag>{{ disk.Name }}:{{ disk.Size }}</el-tag>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="网卡" width="120">
+        <el-table-column label="网卡" width="200">
           <template #default="scope">
-            <div v-for="(eth, index) in scope.row.ethInterface" :key="index">
-              <el-tag type="success">{{ eth.Name }}</el-tag>
+            <div v-for="(eth, index) in scope.row.EthInterface" :key="index">
+              <el-tag type="success">{{ eth.Name }}:{{ eth.MAC }}</el-tag>
             </div>
           </template>
         </el-table-column>
         <el-table-column label="电源" width="120">
-          <template #default="scope">
-            <el-tag type="success">{{ scope.row.power }}</el-tag>
-          </template>
+          <el-tag type="success">UP</el-tag>
         </el-table-column>
-        <el-table-column prop="status" label="状态" />
-        <el-table-column prop="firm" label="厂商" />
-        <el-table-column label="操作" width="140">
+        <el-table-column label="操作">
           <template #default="scope">
             <el-button
               link

@@ -56,3 +56,9 @@ export const getIpmiInfoCollector = (params?: object) => {
     params
   });
 };
+
+export const getAUTOList = (params?: object) => {
+  return http.request<any>("get", baseUrlApi("auto_host/list"), {
+    params
+  });
+};
