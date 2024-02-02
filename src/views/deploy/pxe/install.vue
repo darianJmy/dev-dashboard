@@ -1,10 +1,60 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { Plus } from "@element-plus/icons-vue";
+import { ref, watch } from "vue";
 import { FormInstance } from "element-plus";
 
-const dialog = ref(false);
+const props = defineProps({
+  visible: { type: Boolean, default: false },
+  body: { type: Array, default: null }
+});
 
+const dialog = ref(false);
+const info = ref([]);
+
+const emit = defineEmits(["closeDialog"]);
+
+watch([() => props.visible, () => props.body], ([newVisible, newBody]) => {
+  dialog.value = newVisible;
+  info.value = newBody;
+  formatArrayToDictionary(info.value);
+});
+
+interface DriveInfo {
+  SerialID: string;
+  EthInterface: Array<Eth>;
+}
+
+interface Eth {
+  MAC: string;
+  Name: string;
+}
+
+function formatArrayToDictionary(array: DriveInfo[]) {
+  const formattedDict: Record<string, string[]> = {};
+  const serials = ref([]);
+  for (const item of array) {
+    serials.value.push({
+      label: item.SerialID,
+      value: item.SerialID
+    });
+  }
+
+  const networks = ref([]);
+  for (const item of array[0].EthInterface) {
+    networks.value.push({
+      label: item.Name,
+      value: item.MAC
+    });
+  }
+
+  serialOptions.value = serials.value;
+  netOptions.value = networks.value;
+  return formattedDict;
+}
+
+const close = () => {
+  ruleFormRef.value.resetFields();
+  emit("closeDialog", false);
+};
 const ruleFormRef = ref<FormInstance>();
 
 const ruleForm = ref({
@@ -18,50 +68,18 @@ const ruleForm = ref({
   net: ""
 });
 
-const osOptions = ref([
-  { value: 1, label: "Centos7" },
-  { value: 2, label: "Rocky8.5" },
-  { value: 3, label: "Ubuntu20" }
-]);
+const serialOptions = ref([]);
 
-const serialOptions = ref([
-  { value: 1, label: "420760270" },
-  { value: 2, label: "420760271" },
-  { value: 3, label: "420760272" }
-]);
+const osOptions = ref([{ value: "Centos7", label: "Centos7" }]);
 
-const diskOptions = ref([
-  { value: 1, label: "sda" },
-  { value: 2, label: "sdb" },
-  { value: 3, label: "sdc" }
-]);
+const diskOptions = ref([]);
 
-const netOptions = ref([
-  { value: 1, label: "eth0" },
-  { value: 2, label: "eth1" },
-  { value: 3, label: "eth2" }
-]);
+const netOptions = ref([]);
 
 function create() {}
-
-function close() {
-  ruleFormRef.value.resetFields();
-}
-
-const numberChange = (val: number) => {
-  ruleForm.value.osDiskOM = val;
-};
 </script>
 
 <template>
-  <el-button
-    style="margin-left: 12px"
-    :icon="Plus"
-    @click="dialog = true"
-    type="primary"
-    >批量装机</el-button
-  >
-
   <el-dialog v-model="dialog" title="批量装机" width="45%" @close="close">
     <el-form
       ref="ruleFormRef"
@@ -120,15 +138,6 @@ const numberChange = (val: number) => {
             :value="item.value"
           />
         </el-select>
-      </el-form-item>
-      <el-form-item label="系统盘大小">
-        <el-input-number
-          style="width: 100%"
-          v-model="ruleForm.osDiskOM"
-          :min="60"
-          :max="200"
-          @change="numberChange"
-        />
       </el-form-item>
       <el-form-item label="管理网络">
         <el-select

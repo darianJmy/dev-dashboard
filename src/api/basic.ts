@@ -57,8 +57,32 @@ export const getIpmiInfoCollector = (params?: object) => {
   });
 };
 
+export const postAUTOCreate = (data?: object) => {
+  return http.request<any>("post", baseUrlApi("auto_host/add"), {
+    data
+  });
+};
+
 export const getAUTOList = (params?: object) => {
   return http.request<any>("get", baseUrlApi("auto_host/list"), {
     params
+  });
+};
+
+export const postAUTODelete = (data?: object) => {
+  return http.request<any>("post", baseUrlApi("auto_host/delete"), {
+    data
+  });
+};
+
+export const postAUTOPXE = (data?: object) => {
+  return http.request<any>("post", baseUrlApi("auto_host/bios/pxe"), {
+    data
+  });
+};
+
+export const postAUTORestart = (data?: object) => {
+  return http.request<any>("post", baseUrlApi("auto_host/restart"), {
+    data
   });
 };

@@ -1,23 +1,18 @@
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
-import { Edit, Picture, UploadFilled } from "@element-plus/icons-vue";
-import SubnetReload from "./subnet/reload.vue";
-import SubnetCreate from "./subnet/create.vue";
-import NetworkReload from "./network/reload.vue";
-import NetworkCreate from "./network/create.vue";
-import ML2Reload from "./ml2/reload.vue";
-import ML2Create from "./ml2/create.vue";
-import PXEReload from "./pxe/reload.vue";
-import PXECreate from "./pxe/create.vue";
-import PXEInstall from "./pxe/install.vue";
-import PXESelectImage from "./pxe/selectImage.vue";
+import {
+  Refresh,
+  Plus,
+  SetUp,
+  Edit,
+  Picture,
+  UploadFilled
+} from "@element-plus/icons-vue";
+import PXECREATE from "./pxe/create.vue";
+import PXEINSTALL from "./pxe/install.vue";
+import PXESETPXE from "./pxe/setpxe.vue";
 import PXERAID from "./pxe/raid.vue";
 import PXEDELETE from "./pxe/delete.vue";
-import OpenstackReload from "./openstack/reload.vue";
-import OpenstackCreate from "./openstack/create.vue";
-import OpenstackInitialization from "./openstack/initialization.vue";
-import OpenstackInstall from "./openstack/install.vue";
-import OpenstackSelectRole from "./openstack/selectRole.vue";
 
 import { getAUTOList } from "@/api/basic";
 
@@ -25,62 +20,68 @@ onMounted(() => {
   getAUTO();
 });
 
+const ipmiTableData = ref([]);
+
 async function getAUTO() {
   const result = await getAUTOList();
   ipmiTableData.value = result.data;
-  console.log(ipmiTableData.value);
 }
+const Selection = ref([]);
 
-const ipmiTableData = ref([]);
+const SelectionChange = (val: any) => {
+  Selection.value = val;
+};
 
-const active = ref(0);
-function next() {
-  if (active.value++ > 2) active.value = 0;
-}
+const createval = ref(false);
+const addPxeCreateEvent = () => {
+  createval.value = true;
+};
+const closePxeCreateEvent = () => {
+  createval.value = false;
+  getAUTO();
+};
 
-const activeName = ref("first");
+const installval = ref(false);
+const installbody = ref();
+const addPxeInstallEvent = () => {
+  installval.value = true;
+  installbody.value = Selection.value;
+};
+const closePxeInstallEvent = () => {
+  installval.value = false;
+  getAUTO();
+};
 
-const netTableData = ref([
-  { name: "manager", types: "provider", net: "", ml2: "physnet1", desc: "测试" }
-]);
-
-const hostTableData = ref([
-  {
-    name: "hc1",
-    roles: ["管理", "计算", "控制"],
-    status: "已发现",
-    disks: "sda:1"
-  }
-]);
-
-const subnetTableData = ref([
-  {
-    name: "10.22.41.0/24",
-    subnet: "10.22.41.254",
-    ipRange: [],
-    vlanID: 2041,
-    model: "management"
-  }
-]);
+const setpxeval = ref(false);
+const setpxeser = ref();
+const addPxeSetpxeEvent = any => {
+  setpxeval.value = true;
+  setpxeser.value = any;
+};
+const closePxeSetpxeEvent = () => {
+  setpxeval.value = false;
+};
 
 const raidval = ref(false);
-const raidser = ref();
+const raidmega = ref();
 const addPxeRaidEvent = any => {
   raidval.value = true;
-  raidser.value = any;
+  raidmega.value = any;
 };
-const closePXERaidEvent = () => {
+const closePxeRaidEvent = () => {
   raidval.value = false;
+  getAUTO();
 };
 
 const pxedelval = ref(false);
 const pxedelser = ref();
-const deletePxeEvent = any => {
+const addPxeDeleteEvent = any => {
   pxedelval.value = true;
   pxedelser.value = any;
 };
-const closePXEDelEvent = () => {
+const closePxeDeleteEvent = () => {
   pxedelval.value = false;
+  getAUTO();
 };
 </script>
 
@@ -106,165 +107,102 @@ const closePXEDelEvent = () => {
 <template>
   <el-card>
     <template #header>
-      <el-steps class="step_style" :space="200" :active="active" simple>
+      <el-steps class="step_style" :space="200" simple>
         <el-step title="网络管理" :icon="Edit" />
         <el-step title="批量装机" :icon="UploadFilled" />
         <el-step title="节点管理" :icon="Picture" />
       </el-steps>
     </template>
 
-    <div v-if="active === 0">
-      <el-tabs v-model="activeName" class="demo-tabs">
-        <el-tab-pane label="网段管理" name="second">
-          <div class="card-header">
-            <SubnetReload />
-            <SubnetCreate />
-          </div>
-          <el-table
-            :data="subnetTableData"
-            style="width: 100%; margin-top: 20px; margin-bottom: 20px"
-            :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
-          >
-            <el-table-column prop="name" label="网段" width="180" />
-            <el-table-column prop="subnet" label="网关" width="180" />
-            <el-table-column prop="ipRange" label="范围" />
-            <el-table-column prop="vlanID" label="VLAN-ID" />
-            <el-table-column prop="model" label="模式" />
-            <el-table-column label="操作" />
-          </el-table>
-        </el-tab-pane>
-        <el-tab-pane label="网络管理" name="first">
-          <div class="card-header">
-            <NetworkReload />
-            <NetworkCreate />
-          </div>
-          <el-table :data="netTableData" style="width: 100%">
-            <el-table-column prop="name" label="名称" width="180" />
-            <el-table-column prop="types" label="类型" width="180" />
-            <el-table-column prop="net" label="网段" />
-            <el-table-column prop="ml2" label="ML2网络" />
-            <el-table-column prop="desc" label="描述" />
-          </el-table>
-        </el-tab-pane>
-        <el-tab-pane label="ML2网络" name="third">
-          <div class="card-header">
-            <ML2Reload />
-            <ML2Create />
-          </div>
-        </el-tab-pane>
-      </el-tabs>
-    </div>
-
-    <div v-if="active === 1">
-      <div class="card-header">
-        <PXEReload />
-        <PXECreate />
-        <PXEInstall />
-        <PXESelectImage />
-      </div>
-      <el-table
-        :data="ipmiTableData"
-        style="width: 100%; margin-top: 20px; margin-bottom: 20px"
-        :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
+    <div class="card-header">
+      <el-button @click="getAUTO" :icon="Refresh" />
+      <el-button :icon="Plus" type="primary" @click="addPxeCreateEvent()"
+        >新增设备</el-button
       >
-        <el-table-column type="selection" width="55" />
-        <el-table-column prop="SerialID" label="序列号" width="150" />
-        <el-table-column label="cpu" width="130">
-          <template #default="scope">
-            <div v-for="(cpu, index) in scope.row.CPU" :key="index">
-              <el-tag>{{ cpu.Cores }}核</el-tag>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="Memory" label="内存" width="130" />
-        <el-table-column label="硬盘" width="160">
-          <template #default="scope">
-            <div v-for="(disk, index) in scope.row.Disk" :key="index">
-              <el-tag>{{ disk.Name }}:{{ disk.Size }}</el-tag>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="网卡" width="200">
-          <template #default="scope">
-            <div v-for="(eth, index) in scope.row.EthInterface" :key="index">
-              <el-tag type="success">{{ eth.Name }}:{{ eth.MAC }}</el-tag>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="电源" width="120">
-          <el-tag type="success">UP</el-tag>
-        </el-table-column>
-        <el-table-column label="操作">
-          <template #default="scope">
-            <el-button
-              link
-              type="primary"
-              size="small"
-              @click="addPxeRaidEvent(scope.row.serial)"
-              >RAID管理</el-button
-            >
-
-            <el-button
-              link
-              type="danger"
-              size="small"
-              @click="deletePxeEvent(scope.row.serial)"
-              >删除</el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
+      <el-button :icon="SetUp" type="primary" @click="addPxeInstallEvent()"
+        >批量装机</el-button
+      >
     </div>
-
-    <div v-if="active === 2">
-      <el-tabs v-model="activeName" class="demo-tabs">
-        <el-tab-pane label="部署节点" name="first">
-          <div class="card-header">
-            <OpenstackReload />
-            <OpenstackCreate />
-            <OpenstackInitialization />
-            <OpenstackInstall />
+    <el-table
+      :data="ipmiTableData"
+      style="width: 100%; margin-top: 20px; margin-bottom: 20px"
+      :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
+      @selection-change="SelectionChange"
+    >
+      <el-table-column type="selection" width="55" />
+      <el-table-column prop="HostName" label="主机名" width="150" />
+      <el-table-column prop="SerialID" label="序列号" width="150" />
+      <el-table-column label="cpu" width="130">
+        <template #default="scope">
+          <div v-for="(cpu, index) in scope.row.CPU" :key="index">
+            <el-tag>{{ cpu.Cores }}核</el-tag>
           </div>
-          <el-table
-            :data="hostTableData"
-            style="width: 100%; margin-top: 20px; margin-bottom: 20px"
-            :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
+        </template>
+      </el-table-column>
+      <el-table-column prop="Memory" label="内存" width="130" />
+      <el-table-column label="硬盘" width="160">
+        <template #default="scope">
+          <div v-for="(disk, index) in scope.row.Disk" :key="index">
+            <el-tag>{{ disk.Name }}:{{ disk.Size }}</el-tag>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="网卡" width="200">
+        <template #default="scope">
+          <div v-for="(eth, index) in scope.row.EthInterface" :key="index">
+            <el-tag type="success">{{ eth.Name }}:{{ eth.MAC }}</el-tag>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="Tasks" label="当前任务" width="200" />
+      <el-table-column label="电源" width="120" />
+      <el-table-column label="操作">
+        <template #default="scope">
+          <el-button
+            link
+            type="primary"
+            size="small"
+            @click="addPxeSetpxeEvent(scope.row.SerialID)"
+            >进入PXE</el-button
           >
-            <el-table-column type="selection" width="55" />
-            <el-table-column prop="name" label="主机名" width="180" />
-            <el-table-column label="角色" width="180">
-              <template #default="scope">
-                <el-tag
-                  v-for="(role, index) in hostTableData[scope.$index].roles"
-                  :key="index"
-                  style="margin-left: 2px"
-                >
-                  {{ role }}
-                </el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column prop="status" label="状态" />
-            <el-table-column prop="disks" label="硬盘" />
-            <el-table-column prop="firm" label="操作">
-              <template>
-                <OpenstackSelectRole />
-              </template>
-            </el-table-column>
-          </el-table>
-        </el-tab-pane>
-        <el-tab-pane label="执行历史" name="second" />
-      </el-tabs>
-    </div>
-
-    <div class="bottom-block">
-      <el-button @click="next" type="primary">下一阶段</el-button>
-    </div>
+          <el-button
+            link
+            type="primary"
+            size="small"
+            @click="addPxeRaidEvent(scope.row.Mega)"
+            >RAID管理</el-button
+          >
+          <el-button
+            link
+            type="danger"
+            size="small"
+            @click="addPxeDeleteEvent(scope.row.SerialID)"
+            >删除</el-button
+          >
+        </template>
+      </el-table-column>
+    </el-table>
   </el-card>
 
-  <PXERAID :visible="raidval" :id="raidser" @closeDialog="closePXERaidEvent" />
+  <PXECREATE :visible="createval" @closeDialog="closePxeCreateEvent" />
+  <PXEINSTALL
+    :visible="installval"
+    :body="installbody"
+    @closeDialog="closePxeInstallEvent"
+  />
+  <PXESETPXE
+    :visible="setpxeval"
+    :id="setpxeser"
+    @closeDialog="closePxeSetpxeEvent"
+  />
+  <PXERAID
+    :visible="raidval"
+    :info="raidmega"
+    @closeDialog="closePxeRaidEvent"
+  />
   <PXEDELETE
     :visible="pxedelval"
     :id="pxedelser"
-    @closeDialog="closePXEDelEvent"
+    @closeDialog="closePxeDeleteEvent"
   />
 </template>

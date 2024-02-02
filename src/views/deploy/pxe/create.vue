@@ -1,30 +1,26 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
-import { Plus } from "@element-plus/icons-vue";
+import { ref, reactive, watch } from "vue";
 import { ElMessage } from "element-plus";
-import { FormInstance } from "element-plus";
-import { postIpmiCreate } from "@/api/basic";
+import { postAUTOCreate } from "@/api/basic";
 
 const dialog = ref(false);
 
-const ruleFormRef = ref<FormInstance>();
-
+const ruleFormRef = ref<any>();
 const ruleForm = ref({
-  serial: "",
-  host: "",
-  username: "",
-  password: ""
+  serial_id: "",
+  out_band_ip: "",
+  out_band_username: "",
+  out_band_password: ""
 });
-
 const rules = reactive({
-  serial: [
+  serial_id: [
     {
       required: true,
       message: "请输入资产编号",
       trigger: "blur"
     }
   ],
-  host: [
+  out_band_ip: [
     {
       required: true,
       pattern: /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/,
@@ -32,14 +28,14 @@ const rules = reactive({
       trigger: "blur"
     }
   ],
-  username: [
+  out_band_username: [
     {
       required: true,
       message: "请输入用户名",
       trigger: "blur"
     }
   ],
-  password: [
+  out_band_password: [
     {
       required: true,
       message: "请输入密码",
@@ -56,23 +52,27 @@ async function create() {
     }
   }
 
-  await postIpmiCreate(ruleForm.value);
-  window.location.reload();
+  await postAUTOCreate(ruleForm.value);
+  emit("closeDialog", false);
 }
 
-function close() {
+const close = () => {
   ruleFormRef.value.resetFields();
-}
+  emit("closeDialog", false);
+};
+
+const props = defineProps({
+  visible: { type: Boolean, default: false }
+});
+
+const emit = defineEmits(["closeDialog"]);
+
+watch([() => props.visible], ([newVisible]) => {
+  dialog.value = newVisible;
+});
 </script>
 
 <template>
-  <el-button
-    style="margin-left: 12px"
-    @click="dialog = true"
-    :icon="Plus"
-    type="primary"
-    >新增设备</el-button
-  >
   <el-dialog
     v-model="dialog"
     title="新增带外服务器信息"
@@ -86,22 +86,22 @@ function close() {
       label-position="right"
       label-width="110px"
     >
-      <el-form-item label="资产编号" prop="serial">
-        <el-input v-model="ruleForm.serial" />
+      <el-form-item label="资产编号" prop="serial_id">
+        <el-input v-model="ruleForm.serial_id" />
       </el-form-item>
-      <el-form-item label="带外IP" prop="host">
-        <el-input v-model="ruleForm.host" />
+      <el-form-item label="带外IP" prop="out_band_ip">
+        <el-input v-model="ruleForm.out_band_ip" />
       </el-form-item>
-      <el-form-item label="用户名" prop="username">
-        <el-input v-model="ruleForm.username" />
+      <el-form-item label="用户名" prop="out_band_username">
+        <el-input v-model="ruleForm.out_band_username" />
       </el-form-item>
-      <el-form-item label="密码" prop="password" type="password">
-        <el-input v-model="ruleForm.password" show-password />
+      <el-form-item label="密码" prop="out_band_password" type="password">
+        <el-input v-model="ruleForm.out_band_password" show-password />
       </el-form-item>
     </el-form>
     <template #footer>
       <div>
-        <el-button @click="dialog = false">取消</el-button>
+        <el-button @click="close">取消</el-button>
         <el-button type="primary" @click="create">确认</el-button>
       </div>
     </template>

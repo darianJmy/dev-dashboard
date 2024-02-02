@@ -4,7 +4,7 @@ export default {
   component: () => import("@/views/deploy/index.vue"),
   meta: {
     icon: "TableAltFill",
-    title: "Opensatck部署",
+    title: "安装部署",
     rank: 3
   }
 } as RouteConfigsTable;

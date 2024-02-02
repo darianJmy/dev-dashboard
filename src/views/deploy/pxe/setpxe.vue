@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { postAUTODelete } from "@/api/basic";
+import { postAUTOPXE, postAUTORestart } from "@/api/basic";
 
 const dialog = ref(false);
 
 const serial = ref();
 
-async function DeleteAUTO() {
-  await postAUTODelete({ serial_id: serial.value });
+async function restartAUTO() {
+  await postAUTOPXE([serial.value]);
+  await postAUTORestart([serial.value]);
   emit("closeDialog", false);
 }
 
@@ -30,12 +31,12 @@ watch([() => props.visible, () => props.id], ([newVisible, newId]) => {
 </script>
 
 <template>
-  <el-dialog v-model="dialog" title="删除" width="25%" @close="close">
-    <span>确定删除 {{ serial }} 此数据吗？</span>
+  <el-dialog v-model="dialog" title="进入PXE" width="25%" @close="close">
+    <span>进入PXE需要重启，是否确定？</span>
     <template #footer>
       <div>
         <el-button @click="close">取消</el-button>
-        <el-button type="primary" @click="DeleteAUTO">确定</el-button>
+        <el-button type="primary" @click="restartAUTO">确定</el-button>
       </div>
     </template>
   </el-dialog>
