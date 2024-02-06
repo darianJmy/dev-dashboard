@@ -4,7 +4,7 @@ export default {
   component: () => import("@/views/deploy/index.vue"),
   meta: {
     icon: "TableAltFill",
-    title: "安装部署",
+    title: "PXE部署",
     rank: 3
   }
 } as RouteConfigsTable;

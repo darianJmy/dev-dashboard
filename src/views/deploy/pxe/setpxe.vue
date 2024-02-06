@@ -31,13 +31,15 @@ watch([() => props.visible, () => props.id], ([newVisible, newId]) => {
 </script>
 
 <template>
-  <el-dialog v-model="dialog" title="进入PXE" width="25%" @close="close">
-    <span>进入PXE需要重启，是否确定？</span>
-    <template #footer>
-      <div>
-        <el-button @click="close">取消</el-button>
-        <el-button type="primary" @click="restartAUTO">确定</el-button>
-      </div>
-    </template>
-  </el-dialog>
+  <div>
+    <el-dialog v-model="dialog" title="进入PXE" width="25%" @close="close">
+      <span>进入PXE需要重启，是否确定？</span>
+      <template #footer>
+        <div>
+          <el-button @click="close">取消</el-button>
+          <el-button type="primary" @click="restartAUTO">确定</el-button>
+        </div>
+      </template>
+    </el-dialog>
+  </div>
 </template>

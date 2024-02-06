@@ -30,13 +30,15 @@ watch([() => props.visible, () => props.id], ([newVisible, newId]) => {
 </script>
 
 <template>
-  <el-dialog v-model="dialog" title="删除" width="25%" @close="close">
-    <span>确定删除 {{ serial }} 此数据吗？</span>
-    <template #footer>
-      <div>
-        <el-button @click="close">取消</el-button>
-        <el-button type="primary" @click="DeleteAUTO">确定</el-button>
-      </div>
-    </template>
-  </el-dialog>
+  <div>
+    <el-dialog v-model="dialog" title="删除" width="25%" @close="close">
+      <span>确定删除 {{ serial }} 此数据吗？</span>
+      <template #footer>
+        <div>
+          <el-button @click="close">取消</el-button>
+          <el-button type="primary" @click="DeleteAUTO">确定</el-button>
+        </div>
+      </template>
+    </el-dialog>
+  </div>
 </template>
